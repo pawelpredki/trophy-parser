@@ -11,7 +11,9 @@ public class Trophy {
 
 	private int order;
 	private String title;
+	private String polishTitle = null;
 	private String description;
+	private String polishDescription = null;
 	private String imageFileName;
 	private TrophyColor color;
 
@@ -48,6 +50,22 @@ public class Trophy {
 		this.description = description;
 	}
 
+	public String getPolishTitle() {
+		return polishTitle;
+	}
+
+	public void setPolishTitle(String polishTitle) {
+		this.polishTitle = polishTitle;
+	}
+
+	public String getPolishDescription() {
+		return polishDescription;
+	}
+
+	public void setPolishDescription(String polishDescription) {
+		this.polishDescription = polishDescription;
+	}
+
 	public String getImageFileName() {
 		return imageFileName;
 	}
@@ -78,10 +96,18 @@ public class Trophy {
 		htmlBuilder.append(WP_CONTENT_DATE_FORMAT.format(new Date()));
 		htmlBuilder.append(getImageFileName());
 		htmlBuilder.append("\" alt=\"\" width=\"56\" height=\"56\" /></a> ");
+		if (null != polishTitle) {
+			htmlBuilder.append(getPolishTitle());
+			htmlBuilder.append(" / ");
+		}
 		htmlBuilder.append(getTitle());
 		htmlBuilder.append("</strong></span>");
 		htmlBuilder.append(System.lineSeparator());
 		htmlBuilder.append("<span style=\"text-decoration: underline;\">");
+		if (null != polishDescription) {
+			htmlBuilder.append(getPolishDescription());
+			htmlBuilder.append(" / ");
+		}
 		htmlBuilder.append(getDescription());
 		htmlBuilder.append("</span>");
 		return htmlBuilder.toString();
