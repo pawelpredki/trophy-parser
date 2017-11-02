@@ -42,11 +42,14 @@ public class GameParser {
 
 		// Figure out if Polish is available
 		boolean hasPolish = false;
-		List<Element> languagesMenu = d.select("a.language").first().nextElementSibling().select("a[href]");
-		for (Element language : languagesMenu) {
-			if (language.text().equalsIgnoreCase("Polish")) {
-				hasPolish = true;
-				break;
+		List<Element> languages = d.select("a.language");
+		if (languages.size() > 0) {
+			List<Element> languagesMenu = languages.get(0).nextElementSibling().select("a[href]");
+			for (Element language : languagesMenu) {
+				if (language.text().equalsIgnoreCase("Polish")) {
+					hasPolish = true;
+					break;
+				}
 			}
 		}
 
@@ -73,10 +76,30 @@ public class GameParser {
 			throws MalformedURLException, IOException {
 		List<Trophy> trophies = new LinkedList<Trophy>();
 		int order = 1;
-		Elements trophyRows = d.select("table.zebra").first().select("tbody").first().select("tr");
+		Elements zebraTables = d.select("table.zebra");
+		Elements trophyRows = null;
+		Iterator<Element> zebraIterator = zebraTables.iterator();
+		while (zebraIterator.hasNext()) {
+			Element zebra = zebraIterator.next();
+			if (zebra.hasAttr("style")) {
+				continue;
+			}
+			Elements tbody = zebra.select("tbody");
+			if (tbody.size() > 0) {
+				trophyRows = zebra.select("tbody").first().select("tr");
+				break;
+			}
+		}
+		if (null == trophyRows) {
+			System.out.println("Nie znaleziono trofeów :(");
+			System.exit(-1);
+		}
 		Iterator<Element> rowsIterator = trophyRows.iterator();
 		while (rowsIterator.hasNext()) {
 			Element row = rowsIterator.next();
+			if (row.childNodeSize() == 0) {
+				continue;
+			}
 			String imageUrl = row.select("img[src]").first().attr("src");
 			String extension = imageUrl.substring(imageUrl.lastIndexOf("."));
 			String imageFileName = shortGameName + "_trophy" + String.format("%02d", order) + extension;
