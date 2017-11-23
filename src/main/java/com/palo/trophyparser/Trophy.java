@@ -17,8 +17,7 @@ public class Trophy {
 	private String imageFileName;
 	private TrophyColor color;
 
-	public Trophy(int order, String title, String description, String imageFileName,
-			TrophyColor color) {
+	public Trophy(int order, String title, String description, String imageFileName, TrophyColor color) {
 		super();
 		this.order = order;
 		this.title = title;
@@ -114,10 +113,27 @@ public class Trophy {
 		return htmlBuilder.toString();
 	}
 
+	public String printText() {
+		StringBuilder textBuilder = new StringBuilder();
+
+		if (null != polishTitle) {
+			textBuilder.append(getPolishTitle());
+			textBuilder.append(" / ");
+		}
+		textBuilder.append(getTitle());
+		textBuilder.append(System.lineSeparator());
+		if (null != polishDescription) {
+			textBuilder.append(getPolishDescription());
+			textBuilder.append(" / ");
+		}
+		textBuilder.append(getDescription());
+		textBuilder.append(System.lineSeparator());
+		return textBuilder.toString();
+	}
+
 	@Override
 	public String toString() {
-		return "Trophy [order=" + order + ", " + (title != null ? "title=" + title : "")
-				+ "]";
+		return "Trophy [order=" + order + ", " + (title != null ? "title=" + title : "") + "]";
 	}
 
 }

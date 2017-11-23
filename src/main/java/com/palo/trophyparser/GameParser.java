@@ -45,8 +45,7 @@ public class GameParser {
 		boolean hasPolish = false;
 		List<Element> languages = d.select("a.language");
 		if (languages.size() > 0) {
-			List<Element> languagesMenu = languages.get(0).nextElementSibling()
-					.select("a[href]");
+			List<Element> languagesMenu = languages.get(0).nextElementSibling().select("a[href]");
 			for (Element language : languagesMenu) {
 				if (language.text().equalsIgnoreCase("Polish")) {
 					hasPolish = true;
@@ -64,8 +63,8 @@ public class GameParser {
 		}
 		for (String s : trophies.keySet()) {
 
-			PrintWriter writer = new PrintWriter(gameDir.getPath() + File.separator + s
-					+ "_html.txt", "UTF-8");
+			PrintWriter writer = new PrintWriter(gameDir.getPath() + File.separator + s + "_html.txt", "UTF-8");
+			PrintWriter writerGoogle = new PrintWriter(gameDir.getPath() + File.separator + s + "_gdocs.txt", "UTF-8");
 
 			writer.write(Header.getHtml(platCount, goldCount, silverCount, bronzeCount));
 
@@ -73,14 +72,17 @@ public class GameParser {
 				writer.write(t.printHtml());
 				writer.write(System.lineSeparator());
 				writer.write(System.lineSeparator());
+				writerGoogle.write(t.printText());
+				writerGoogle.write(System.lineSeparator());
+				writerGoogle.write(System.lineSeparator());
 			}
 			writer.close();
+			writerGoogle.close();
 		}
 	}
 
 	private HashMap<String, List<Trophy>> parseTrophies(Document d, String shortGameName,
-			HashMap<String, List<Trophy>> englishTrophies) throws MalformedURLException,
-			IOException {
+			HashMap<String, List<Trophy>> englishTrophies) throws MalformedURLException, IOException {
 		if (null != englishTrophies) {
 			System.out.println(">> Polskie Trofea");
 		} else {
@@ -126,16 +128,15 @@ public class GameParser {
 				Element imageElement = row.select("img[src]").first();
 				String imageUrl = imageElement.attr("src");
 				String extension = imageUrl.substring(imageUrl.lastIndexOf("."));
-				String imageFileName = shortGameName + "_" + key + "_trophy"
-						+ String.format("%02d", order) + extension;
+				String imageFileName = shortGameName + "_" + key + "_trophy" + String.format("%02d", order) + extension;
 				File targetFile = new File(shortGameName + File.separator + imageFileName);
 				FileUtils.copyURLToFile(new URL(imageUrl), targetFile);
 				Element titleAndDescriptionElement = row.select("td[style]").first();
 				String title = titleAndDescriptionElement.select("a[href]").text();
 				String description = titleAndDescriptionElement.ownText();
 				if (null == englishTrophies) {
-					TrophyColor color = TrophyColor.valueOf(row.select("td[style]").last()
-							.select("img[title]").first().attr("title").toUpperCase());
+					TrophyColor color = TrophyColor.valueOf(
+							row.select("td[style]").last().select("img[title]").first().attr("title").toUpperCase());
 					Trophy t = new Trophy(order, title, description, imageFileName, color);
 					switch (color) {
 					case BRONZE:
@@ -172,7 +173,7 @@ public class GameParser {
 		// }
 		if (null == englishTrophies) {
 			if (allTrophies.size() == 0) {
-				System.out.println("Nie znaleziono trofeów :(");
+				System.out.println("Nie znaleziono trofeÃ³w :(");
 				System.exit(-1);
 			}
 			return allTrophies;
