@@ -24,7 +24,12 @@ public class SearchParser {
 		List<Game> games = new LinkedList<Game>();
 		int index = 1;
 		Document d = Jsoup.connect(searchUrl).get();
-		Elements gameRows = d.select("table.zebra").first().select("tbody").first().select("tr");
+		Element zebra = d.select("table.zebra").first();
+		if (null == zebra) {
+			return games;
+		}
+		Element tbody = zebra.select("tbody").first();
+		Elements gameRows = tbody.select("tr");
 		for (Element row : gameRows) {
 			Element infoCell = row.select("td").get(1);
 			Element a = infoCell.select("a").first();

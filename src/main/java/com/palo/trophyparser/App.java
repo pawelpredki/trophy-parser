@@ -41,7 +41,7 @@ public class App {
 		parser.parseGame();
 
 		System.out.println();
-		System.out.println("Obrazk i HTML do wklejenia w WP znajdziesz w folderze /" + g.getShortName());
+		System.out.println("Obrazki i HTML do wklejenia w WP znajdziesz w folderze /" + g.getShortName());
 
 	}
 }

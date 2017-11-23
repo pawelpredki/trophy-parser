@@ -17,7 +17,8 @@ public class Trophy {
 	private String imageFileName;
 	private TrophyColor color;
 
-	public Trophy(int order, String title, String description, String imageFileName, TrophyColor color) {
+	public Trophy(int order, String title, String description, String imageFileName,
+			TrophyColor color) {
 		super();
 		this.order = order;
 		this.title = title;
@@ -111,6 +112,12 @@ public class Trophy {
 		htmlBuilder.append(getDescription());
 		htmlBuilder.append("</span>");
 		return htmlBuilder.toString();
+	}
+
+	@Override
+	public String toString() {
+		return "Trophy [order=" + order + ", " + (title != null ? "title=" + title : "")
+				+ "]";
 	}
 
 }
