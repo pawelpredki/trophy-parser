@@ -20,7 +20,7 @@ import org.jsoup.select.Elements;
 public class GameParser {
 
 	private Game game;
-	private int platCount = 0, goldCount = 0, silverCount = 0, bronzeCount = 0;
+	private HashMap<String, TrophyCounter> trophyCounts = new HashMap<String, TrophyCounter>();
 
 	public GameParser(Game game) {
 		this.game = game;
@@ -66,7 +66,7 @@ public class GameParser {
 			PrintWriter writer = new PrintWriter(gameDir.getPath() + File.separator + s + "_html.txt", "UTF-8");
 			PrintWriter writerGoogle = new PrintWriter(gameDir.getPath() + File.separator + s + "_gdocs.txt", "UTF-8");
 
-			writer.write(Header.getHtml(platCount, goldCount, silverCount, bronzeCount));
+			writer.write(Header.getHtml(trophyCounts.get(s)));
 
 			for (Trophy t : trophies.get(s)) {
 				writer.write(t.printHtml());
@@ -101,6 +101,7 @@ public class GameParser {
 
 		int order = 1;
 		String key = "base";
+		TrophyCounter currentTrophyCounter = new TrophyCounter();
 		while (zebraIterator.hasNext()) {
 			Element zebra = zebraIterator.next();
 			if (zebra.hasAttr("style")) {
@@ -138,20 +139,7 @@ public class GameParser {
 					TrophyColor color = TrophyColor.valueOf(
 							row.select("td[style]").last().select("img[title]").first().attr("title").toUpperCase());
 					Trophy t = new Trophy(order, title, description, imageFileName, color);
-					switch (color) {
-					case BRONZE:
-						bronzeCount++;
-						break;
-					case SILVER:
-						silverCount++;
-						break;
-					case GOLD:
-						goldCount++;
-						break;
-					case PLATINUM:
-						platCount++;
-						break;
-					}
+					currentTrophyCounter.addCount(color);
 					trophies.add(t);
 					System.out.println(t.toString());
 				} else {
@@ -164,11 +152,14 @@ public class GameParser {
 			order = 1;
 			allTrophies.put(key, trophies);
 			trophies = new LinkedList<Trophy>();
+			if (null == englishTrophies) {
+				trophyCounts.put(key, currentTrophyCounter);
+			}
 			if (++gameWithDlcCount == gameWithDlcTotal) {
 				break;
 			}
 			key = "dlc" + gameWithDlcCount;
-
+			currentTrophyCounter = new TrophyCounter();
 		}
 		// }
 		if (null == englishTrophies) {
@@ -181,5 +172,4 @@ public class GameParser {
 			return englishTrophies;
 		}
 	}
-
 }

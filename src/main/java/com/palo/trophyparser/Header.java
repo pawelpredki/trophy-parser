@@ -2,7 +2,12 @@ package com.palo.trophyparser;
 
 public class Header {
 
-	public static String getHtml(int platinum, int gold, int silver, int bronze) {
+	public static String getHtml(TrophyCounter trophyCounter) {
+		int platinum = trophyCounter.getCount(TrophyColor.PLATINUM);
+		int gold = trophyCounter.getCount(TrophyColor.GOLD);
+		int silver = trophyCounter.getCount(TrophyColor.SILVER);
+		int bronze = trophyCounter.getCount(TrophyColor.BRONZE);
+
 		StringBuilder bld = new StringBuilder();
 
 		bld.append(
@@ -44,5 +49,4 @@ public class Header {
 		return bld.toString();
 
 	}
-
 }
