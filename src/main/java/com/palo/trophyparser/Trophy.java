@@ -110,6 +110,9 @@ public class Trophy {
 		}
 		htmlBuilder.append(getDescription());
 		htmlBuilder.append("</span>");
+		htmlBuilder.append(System.lineSeparator());
+		htmlBuilder.append("<br><br>");
+		htmlBuilder.append(System.lineSeparator());
 		return htmlBuilder.toString();
 	}
 
