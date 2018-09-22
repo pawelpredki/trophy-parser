@@ -89,7 +89,7 @@ public class Trophy {
 		htmlBuilder.append(WP_CONTENT_UPLOAD_URL);
 		htmlBuilder.append(WP_CONTENT_DATE_FORMAT.format(new Date()));
 		htmlBuilder.append(getImageFileName());
-		htmlBuilder.append("\"><img class=\"alignnone size-full wp-image-11317\" src=\"");
+		htmlBuilder.append("\"><img class=\"inlineimg size-full wp-image-11317\" src=\"");
 		htmlBuilder.append(WP_CONTENT_UPLOAD_URL);
 		htmlBuilder.append(WP_CONTENT_DATE_FORMAT.format(new Date()));
 		htmlBuilder.append(getImageFileName());
