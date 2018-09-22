@@ -15,7 +15,8 @@ public class Trophy {
 	private String description;
 	private String polishDescription = null;
 	private String imageFileName;
-	private TrophyColor color;
+	private TrophyColor color = null;
+	private String gamerscore = null;
 
 	public Trophy(int order, String title, String description, String imageFileName, TrophyColor color) {
 		super();
@@ -24,6 +25,15 @@ public class Trophy {
 		this.description = description;
 		this.imageFileName = imageFileName;
 		this.color = color;
+	}
+
+	public Trophy(int order, String title, String description, String imageFileName, String gamerscore) {
+		super();
+		this.order = order;
+		this.title = title;
+		this.description = description;
+		this.imageFileName = imageFileName;
+		this.gamerscore = gamerscore;
 	}
 
 	public int getOrder() {
@@ -82,6 +92,14 @@ public class Trophy {
 		this.color = color;
 	}
 
+	public String getGamerscore() {
+		return gamerscore;
+	}
+
+	public void setGamerscore(String gamerscore) {
+		this.gamerscore = gamerscore;
+	}
+
 	public String printHtml() {
 		StringBuilder htmlBuilder = new StringBuilder();
 
@@ -94,13 +112,20 @@ public class Trophy {
 		htmlBuilder.append(WP_CONTENT_DATE_FORMAT.format(new Date()));
 		htmlBuilder.append(getImageFileName());
 		htmlBuilder.append("\" alt=\"\" width=\"56\" height=\"56\" /></a> ");
-		htmlBuilder.append(getColor().getColorImageHtml());
+		if (null != this.getColor()) {
+			htmlBuilder.append(getColor().getColorImageHtml());
+		}
 		htmlBuilder.append(" ");
 		if (null != polishTitle) {
 			htmlBuilder.append(getPolishTitle());
 			htmlBuilder.append(" / ");
 		}
 		htmlBuilder.append(getTitle());
+		if (null != this.gamerscore) {
+			htmlBuilder.append(String.format(
+					" <span style=\"color: #339966;\">%s <a href=\"https://lowcytrofeow.pl/wp-content/uploads/2018/09/Xbox_gamerscore-lowcy.png\"><img class=\"inlineimg wp-image-9297\" src=\"https://lowcytrofeow.pl/wp-content/uploads/2018/09/Xbox_gamerscore-lowcy.png\" alt=\"\" width=\"15\" height=\"15\" /></a></span>",
+					this.gamerscore));
+		}
 		htmlBuilder.append("</strong>");
 		htmlBuilder.append(System.lineSeparator());
 		htmlBuilder.append("<span style=\"text-decoration: underline;\">");
