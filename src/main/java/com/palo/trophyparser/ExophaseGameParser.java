@@ -1,8 +1,10 @@
 package com.palo.trophyparser;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -18,158 +20,199 @@ import org.jsoup.select.Elements;
 
 public class ExophaseGameParser {
 
-	private Game game;
-	private int system;
-	private String logPrefix = "";
-	private HashMap<String, TrophyCounter> trophyCounts = new HashMap<String, TrophyCounter>();
+    private File gameDir = null;
+    private String logPrefix = "";
+    private boolean alreadyParsed = false;
+    private boolean doPolish = true;
+    private HashMap<String, TrophyCounter> trophyCounts = new HashMap<String, TrophyCounter>();
+    private HashMap<String, List<Trophy>> trophies = new HashMap<String, List<Trophy>>();
+    private HashMap<String, Trophy> indexedTrophies = new HashMap<String, Trophy>();
 
-	public ExophaseGameParser(Game game, int system) {
-		this.game = game;
-		this.system = system;
-		switch (system) {
-		case App.SYSTEM_PS_FLAG:
-			logPrefix = "[PlayStation]";
-			break;
-		case App.SYSTEM_XBOX_FLAG:
-			logPrefix = "[Xbox";
-			break;
-		default:
-			break;
-		}
-	}
+    public ExophaseGameParser() {
+    }
 
-	public void parseGame() throws IOException {
-		String url = game.getUrl();// + "?lang=pl";
-		Document d = Jsoup.connect(url).get();
+    public void parseGame(Game game, int system) throws IOException {
+        String url = game.getUrl();// + "?lang=pl";
+        Document d = Jsoup.connect(url).get();
 
-		// Get game name from header
-		String gameName = game.getName();// d.select("h3").first().text().split("›")[1];
-		String shortGameName = game.getShortName();
+        // Get game name from header
+        String gameName = game.getName();// d.select("h3").first().text().split("â€º")[1];
+        String shortGameName = game.getShortName();
 
-		System.out.println(gameName + "(" + shortGameName + ")");
-		File gameDir = new File(shortGameName);
-		if (Files.exists(gameDir.toPath())) {
-			FileUtils.forceDelete(gameDir);
-		}
-		FileUtils.forceMkdir(gameDir);
+        if (null == gameDir) {
+            System.out.println(gameName + "(" + shortGameName + ")");
+            gameDir = new File(shortGameName);
+            if (Files.exists(gameDir.toPath())) {
+                FileUtils.forceDelete(gameDir);
+            }
+            FileUtils.forceMkdir(gameDir);
+        }
 
-		// Figure out if Polish is available
-		boolean hasPolish = false;
-		List<Element> languages = d.select("div.col.btn-group.p-0").first().select("ul").first().select("li");
-		if (languages.size() > 0) {
-			for (Element language : languages) {
-				if (language.select("a").first().text().contains("Polish")) {
-					hasPolish = true;
-					break;
-				}
-			}
-		}
+        // Figure out if Polish is available
+        boolean hasPolish = false;
+        List<Element> languages = d.select("div.col.btn-group.p-0").first().select("ul").first().select("li");
+        if (languages.size() > 0) {
+            for (Element language : languages) {
+                if (language.select("a").first().text().contains("Polish")) {
+                    hasPolish = true;
+                    break;
+                }
+            }
+        }
 
-		HashMap<String, List<Trophy>> trophies = parseTrophies(d, shortGameName, null);
+        parseTrophies(d, shortGameName, system, false);
 
-		if (hasPolish) {
-			d = Jsoup.connect(url + "/pl").get();
-			parseTrophies(d, shortGameName, trophies);
+        if (hasPolish && doPolish) {
+            d = Jsoup.connect(url + "/pl").get();
+            parseTrophies(d, shortGameName, system, true);
+            doPolish = false;
+        }
+        alreadyParsed = true;
+    }
 
-		}
-		for (String s : trophies.keySet()) {
+    private void parseTrophies(Document d, String shortGameName,
+            int system, boolean checkPolish) throws MalformedURLException, IOException {
+        if (checkPolish) {
+            System.out.println(String.format(">> %s Sprawdzam polską listę", logPrefix));
+        } else {
+            System.out.println(String.format(">> %s Sprawdzam angielską listę", logPrefix));
+        }
 
-			PrintWriter writer = new PrintWriter(gameDir.getPath() + File.separator + s + "_html.txt", "UTF-8");
-			PrintWriter writerGoogle = new PrintWriter(gameDir.getPath() + File.separator + s + "_gdocs.txt", "UTF-8");
+        List<Trophy> localTrophies = new LinkedList<Trophy>();
+        Element awardsGlobal = d.select("div#awards").first();
+        Elements dlcListings = awardsGlobal.select("h3.listing");
+        Elements awardSections = awardsGlobal.select("ul.list-unordered-base");
 
-			writer.write(Header.getHtml(trophyCounts.get(s)));
+        int order = 1;
+        int dlcIndex = -1;
+        String key = "base";
+        TrophyCounter currentTrophyCounter = new TrophyCounter();
+        for (Element awardSection : awardSections) {
+            if (dlcIndex >= 0) {
+                key = "dlc" + dlcIndex;
+            }
+            Elements awards = awardSection.select("li");
 
-			for (Trophy t : trophies.get(s)) {
-				writer.write(t.printHtml());
-				writer.write(System.lineSeparator());
-				writer.write(System.lineSeparator());
-				writerGoogle.write(t.printText());
-				writerGoogle.write(System.lineSeparator());
-				writerGoogle.write(System.lineSeparator());
-			}
-			writer.close();
-			writerGoogle.close();
-		}
-	}
+            System.out.println("Wykrywam <" + key + ">");
 
-	private HashMap<String, List<Trophy>> parseTrophies(Document d, String shortGameName,
-			HashMap<String, List<Trophy>> englishTrophies) throws MalformedURLException, IOException {
-		if (null != englishTrophies) {
-			System.out.println(String.format(">> %s Sprawdzam polską listę", logPrefix));
-		} else {
-			System.out.println(String.format(">> %s Sprawdzam angielską listę", logPrefix));
-		}
+            for (Element award : awards) {
+                // Get image
+                String imageUrl = award.select("img.trophy-image").first().attr("src");
+                String extension = imageUrl.substring(imageUrl.lastIndexOf("."));
+                String imageFileName = shortGameName + "_" + key + "_trophy" + String.format("%02d", order) + extension;
+                File targetFile = new File(shortGameName + File.separator + imageFileName);
+                FileUtils.copyURLToFile(new URL(imageUrl), targetFile);
 
-		HashMap<String, List<Trophy>> allTrophies = new HashMap<String, List<Trophy>>();
-		List<Trophy> trophies = new LinkedList<Trophy>();
-		Element awardsGlobal = d.select("div#awards").first();
-		Elements dlcListings = awardsGlobal.select("h3.listing");
-		Elements awardSections = awardsGlobal.select("ul.list-unordered-base");
+                // Get title
+                String title = award.select("div.trophy-title > a").first().text();
+                String description = award.select("div.trophy-desc").first().text();
+                boolean addTrophy = !alreadyParsed;
+                if (!checkPolish) {
+                    Trophy t = null;
+                    if (App.SYSTEM_XBOX_FLAG == system) {
+                        String gamerscore = award.select("div.gamerscore").first().text();
+                        if (alreadyParsed) {
+                            t = indexedTrophies.get(title.trim().toLowerCase());
+                            if (null != t) {
+                                t.setGamerscore(gamerscore);
+                            } else {
+                                addTrophy = true;
+                            }
+                        }
+                        if (addTrophy) {
+                            t = new Trophy(order, title, description, imageFileName,
+                                    gamerscore.substring(gamerscore.indexOf(" ")).trim());
+                            indexedTrophies.put(title.trim().toLowerCase(), t);
+                        }
+                    } else if (App.SYSTEM_PS_FLAG == system) {
+                        String trophyColor = award.select("span.trophy").first().attr("title");
+                        TrophyColor color = TrophyColor.valueOf(trophyColor.toUpperCase());
+                        if (alreadyParsed) {
+                            t = indexedTrophies.get(title.trim().toLowerCase());
+                            if (null != t) {
+                                t.setColor(color);
+                            } else {
+                                addTrophy = true;
+                            }
+                        }
+                        if (addTrophy) {
+                            t = new Trophy(order, title, description, imageFileName, color);
+                            currentTrophyCounter.addCount(color);
+                            indexedTrophies.put(title.trim().toLowerCase(), t);
+                        }
+                    }
+                    if (addTrophy) {
+                        localTrophies.add(t);
+                        System.out.println(t.toString());
+                    }
+                } else {
+                    Trophy t = trophies.get(key).get(order - 1);
+                    t.setPolishDescription(description);
+                    t.setPolishTitle(title);
+                }
+                order++;
+            }
+            order = 1;
+            if (!checkPolish) {
+                if (!alreadyParsed) {
+                    System.out.println(String.format("Tworzę %d trofeów dla <%s>", localTrophies.size(), key));
+                    trophies.put(key, localTrophies);
+                    trophyCounts.put(key, currentTrophyCounter);
+                } else {
+                    System.out.println(String.format("Dodaję %d trofeów do <%s>", localTrophies.size(), key));
+                    if (localTrophies.size() > 0) {
+                        doPolish = true;
+                    }
+                    trophies.get(key).addAll(localTrophies);
+                }
+            }
+            localTrophies = new LinkedList<Trophy>();
 
-		int order = 1;
-		int dlcIndex = -1;
-		String key = "base";
-		TrophyCounter currentTrophyCounter = new TrophyCounter();
-		for (Element awardSection : awardSections) {
-			if (dlcIndex >= 0) {
-				key = "dlc" + dlcIndex;
-			}
-			Elements awards = awardSection.select("li");
+            if (dlcListings.size() == dlcIndex) {
+                break;
+            }
+            key = "dlc" + dlcIndex++;
+            currentTrophyCounter = new TrophyCounter();
+        }
+        if (!checkPolish) {
+            if (trophies.size() == 0 && !alreadyParsed) {
+                System.out.println(String.format("%s Nie znaleziono :(", logPrefix));
+                System.exit(-1);
+            }
+        }
+    }
 
-			System.out.println("Wykrywam <" + key + ">");
+    public void printTrophies() throws FileNotFoundException, UnsupportedEncodingException {
+        for (String s : trophies.keySet()) {
 
-			for (Element award : awards) {
-				// Get image
-				String imageUrl = award.select("img.trophy-image").first().attr("src");
-				String extension = imageUrl.substring(imageUrl.lastIndexOf("."));
-				String imageFileName = shortGameName + "_" + key + "_trophy" + String.format("%02d", order) + extension;
-				File targetFile = new File(shortGameName + File.separator + imageFileName);
-				FileUtils.copyURLToFile(new URL(imageUrl), targetFile);
+            PrintWriter writer = new PrintWriter(gameDir.getPath() + File.separator + s + "_html.txt", "UTF-8");
+            PrintWriter writerGoogle = new PrintWriter(gameDir.getPath() + File.separator + s + "_gdocs.txt", "UTF-8");
 
-				// Get title
-				String title = award.select("div.trophy-title > a").first().text();
-				String description = award.select("div.trophy-desc").first().text();
-				if (null == englishTrophies) {
-					Trophy t = null;
-					if (App.SYSTEM_XBOX_FLAG == system) {
-						String gamerscore = award.select("div.gamerscore").first().text();
-						t = new Trophy(order, title, description, imageFileName,
-								gamerscore.substring(gamerscore.indexOf(" ")).trim());
-					} else if (App.SYSTEM_PS_FLAG == system) {
-						String trophyColor = award.select("span.trophy").first().attr("title");
-						TrophyColor color = TrophyColor.valueOf(trophyColor.toUpperCase());
-						t = new Trophy(order, title, description, imageFileName, color);
-						currentTrophyCounter.addCount(color);
-					}
-					trophies.add(t);
-					System.out.println(t.toString());
-				} else {
-					Trophy t = englishTrophies.get(key).get(order - 1);
-					t.setPolishDescription(description);
-					t.setPolishTitle(title);
-				}
-				order++;
-			}
-			order = 1;
-			allTrophies.put(key, trophies);
-			trophies = new LinkedList<Trophy>();
-			if (null == englishTrophies) {
-				trophyCounts.put(key, currentTrophyCounter);
-			}
-			if (dlcListings.size() == dlcIndex) {
-				break;
-			}
-			key = "dlc" + dlcIndex++;
-			currentTrophyCounter = new TrophyCounter();
-		}
-		if (null == englishTrophies) {
-			if (allTrophies.size() == 0) {
-				System.out.println(String.format("%s Nie znaleziono :(", logPrefix));
-				System.exit(-1);
-			}
-			return allTrophies;
-		} else {
-			return englishTrophies;
-		}
-	}
+            writer.write(Header.getHtml(trophyCounts.get(s)));
+
+            for (Trophy t : trophies.get(s)) {
+                writer.write(t.printHtml());
+                writer.write(System.lineSeparator());
+                writer.write(System.lineSeparator());
+                writerGoogle.write(t.printText());
+                writerGoogle.write(System.lineSeparator());
+                writerGoogle.write(System.lineSeparator());
+            }
+            writer.close();
+            writerGoogle.close();
+        }
+    }
+
+    public boolean isAlreadyParsed() {
+        return alreadyParsed;
+    }
+
+    public String getGameDirString() {
+        if (null != gameDir) {
+            return gameDir.getName();
+        } else {
+            return "";
+        }
+    }
+
 }
