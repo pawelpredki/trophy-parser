@@ -215,4 +215,12 @@ public class ExophaseGameParser {
         }
     }
 
+	public void applyEmptyGamerscore() {
+		for (String s : trophies.keySet()) {
+            for (Trophy t : trophies.get(s)) {
+                t.setGamerscore("");
+            }
+        }		
+	}
+
 }
