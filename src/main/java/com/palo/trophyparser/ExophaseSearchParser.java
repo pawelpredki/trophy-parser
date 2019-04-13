@@ -26,8 +26,9 @@ public class ExophaseSearchParser {
 		int index = 1;
 
 		Document d = Jsoup.connect(App.EXOPHASE_DOMAIN + "/search?s=" + this.searchTerm).get();
-		Element main = d.select("ul.game-list-type-b").first();
+		Element main = d.select("ul.list-unordered-base").first();
 		if (null == main) {
+			System.out.println("MAIN NOT FOUND");
 			return games;
 		}
 		String urlSuffix = "";
@@ -47,8 +48,8 @@ public class ExophaseSearchParser {
 		Elements gameRows = main.select("li");
 		for (Element row : gameRows) {
 			Element urlCell = row.select("a").first();
-			String gameUrl = urlCell.attr("href") + urlSuffix;
-			Element titleCell = row.select("span").first();
+			String gameUrl = urlCell.attr("href");
+			Element titleCell = row.select("div").first().select("h3").first().select("a").first();
 			String gameTitle = titleCell.text();
 			Elements platformCells = row.select("div.inline-pf");
 			String gamePlatform = "";

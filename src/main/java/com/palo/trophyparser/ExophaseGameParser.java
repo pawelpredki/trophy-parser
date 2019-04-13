@@ -63,7 +63,7 @@ public class ExophaseGameParser {
         parseTrophies(d, shortGameName, system, false);
 
         if (hasPolish && doPolish) {
-            d = Jsoup.connect(url + "/pl").get();
+            d = Jsoup.connect(url + "pl").get();
             parseTrophies(d, shortGameName, system, true);
             doPolish = false;
         }
