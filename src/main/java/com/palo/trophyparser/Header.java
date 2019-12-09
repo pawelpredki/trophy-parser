@@ -9,15 +9,17 @@ public class Header {
 		int bronze = trophyCounter.getCount(TrophyColor.BRONZE);
 
 		StringBuilder bld = new StringBuilder();
-		bld.append("<p style=\"text-align: center;\">PORADNIK</p>");
-		bld.append(System.lineSeparator());
-		bld.append("<!--more-->");
-		bld.append(System.lineSeparator());
-		bld.append("<h3><strong>Informacje ogólne:</strong></h3>");
+		//bld.append("<p style=\"text-align: center;\">PORADNIK</p>");
+		//bld.append(System.lineSeparator());
+		//bld.append("<!--more-->");
+		//bld.append(System.lineSeparator());
+		//bld.append("<h3><strong>Informacje ogólne:</strong></h3>");
 		bld.append(System.lineSeparator());
 		bld.append("<ul>");
 		bld.append(System.lineSeparator());
 		bld.append("<li><strong>Stopień trudności wbicia platyny</strong>: /10</li>");
+		bld.append(System.lineSeparator());
+        bld.append("<li><strong>Czas do zdobycia platyny</strong>:</li>");
 		bld.append(System.lineSeparator());
 		bld.append(
 				"<li><strong>Liczba trofeów</strong>:<strong> <img class=\"inlineimg size-full wp-image-345\" src=\"https://lowcytrofeow.pl/wp-content/uploads/2018/06/platyna.png\" alt=\"platyna\" width=\"16\" height=\"16\"  data-orig-file=\"https://lowcytrofeow.pl/wp-content/uploads/2018/06/platyna.png\" data-orig-size=\"16,16\" data-comments-opened=\"1\" data-image-title=\"platyna\" data-image-description=\"\" data-medium-file=\"https://lowcytrofeow.pl/wp-content/uploads/2018/06/platyna.png\" data-large-file=\"https://lowcytrofeow.pl/wp-content/uploads/2018/06/platyna.png\" /><span style=\"color: #00ccff;\">x"
@@ -37,9 +39,7 @@ public class Header {
 		bld.append(System.lineSeparator());
 		bld.append("<li><strong>Trofea możliwe do przeoczenia</strong>:</li>");
 		bld.append(System.lineSeparator());
-		bld.append("<li><strong>Zglitchowane trofea</strong>:</li>");
-		bld.append(System.lineSeparator());
-		bld.append("<li><strong>Czas do zdobycia platyny</strong>:</li>");
+		bld.append("<li><strong>Zglitchowane trofea</strong>:</li>");		
 		bld.append(System.lineSeparator());
 		bld.append("</ul>");
 		bld.append(System.lineSeparator());
