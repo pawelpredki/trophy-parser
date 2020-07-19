@@ -99,6 +99,9 @@ public class ExophaseGameParser {
                 // Get image
                 String imageUrl = award.select("img.trophy-image").first().attr("src");
                 String extension = imageUrl.substring(imageUrl.lastIndexOf("."));
+                if (extension.contains("?")) {
+                  extension = extension.substring(0, extension.indexOf('?'));
+                }
                 String imageFileName = shortGameName + "_" + key + (App.SYSTEM_PS_FLAG == system ? "_trophy" : "_achievement") + String.format("%02d", order) + extension;
                 File targetFile = new File(shortGameName + File.separator + imageFileName);
                 FileUtils.copyURLToFile(new URL(imageUrl), targetFile);
