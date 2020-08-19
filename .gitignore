@@ -1,2 +1,5 @@
 /target/
-/dependency-reduced-pom.xml
+/.idea/
+trophy-parser.iml
+dependency-reduced-pom.xml
+
