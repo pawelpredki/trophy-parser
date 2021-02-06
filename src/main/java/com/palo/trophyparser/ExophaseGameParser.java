@@ -128,8 +128,7 @@ public class ExophaseGameParser {
               }
             }
             if (addTrophy) {
-              t = new Trophy(order, title, description, imageFileName,
-                  gamerscore.substring(gamerscore.indexOf(" ")).trim());
+              t = new Trophy(order, title, description, imageFileName, gamerscore.trim());
               indexedTrophies.put(title.trim().toLowerCase(), t);
             }
           } else if (App.SYSTEM_PS_FLAG == system) {

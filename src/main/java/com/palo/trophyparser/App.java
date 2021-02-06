@@ -12,6 +12,7 @@ import java.util.List;
 public class App {
 
 	public static final String EXOPHASE_DOMAIN = "https://www.exophase.com";
+  public static final String EXOPHASE_API_ROOT = "https://api.exophase.com/public";
 
 	public static final int SYSTEM_XBOX_FLAG = (1 << 0);
 	public static final int SYSTEM_PS_FLAG = (1 << 1);
