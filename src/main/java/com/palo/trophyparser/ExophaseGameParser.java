@@ -194,7 +194,8 @@ public class ExophaseGameParser {
     }
   }
 
-  public void printTrophies() throws FileNotFoundException, UnsupportedEncodingException {
+  public void printTrophies(boolean providedByPublisher)
+      throws FileNotFoundException, UnsupportedEncodingException {
     for (String s : trophies.keySet()) {
 
       PrintWriter writer = new PrintWriter(gameDir.getPath() + File.separator + s + "_html.txt",
@@ -212,6 +213,7 @@ public class ExophaseGameParser {
         writerGoogle.write(System.lineSeparator());
         writerGoogle.write(System.lineSeparator());
       }
+      writer.write(Footer.getHtml(providedByPublisher));
       writer.close();
       writerGoogle.close();
     }

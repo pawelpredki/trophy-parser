@@ -19,6 +19,7 @@ public class App {
 
 	public static void main(String[] args) throws IOException {
 		boolean theEnd = false;
+		boolean providedByPublisher = false;
 		while (!theEnd) {
 
 			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -85,8 +86,21 @@ public class App {
 				}
 			}
 
+			// Ask if game was provided by publisher
+      while (!(input.equalsIgnoreCase("t") || input.equalsIgnoreCase("n"))) {
+        System.out.println();
+        System.out.println("Czy grę udostępnił wydawca [T/N] ?");
+        System.out.print("> ");
+        input = br.readLine();
+      }
+      if (input.equalsIgnoreCase("t")) {
+        providedByPublisher = true;
+      } else {
+        providedByPublisher = false;
+      }
+
 			if (parser.isAlreadyParsed()) {
-				parser.printTrophies();
+				parser.printTrophies(providedByPublisher);
 				System.out.println();
 				System.out.println(
 						"Obrazki i HTML do wklejenia w WP znajdziesz w folderze /" + parser.getGameDirString());
