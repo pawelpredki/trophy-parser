@@ -4,7 +4,7 @@
   <groupId>com.palo</groupId>
   <artifactId>trophy-parser</artifactId>
   <name>trophy-parser</name>
-  <version>0.2.4</version>
+  <version>0.4.1</version>
   <url>http://maven.apache.org</url>
   <build>
     <plugins>
@@ -36,8 +36,17 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.18</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <properties>
+    <version.lombok>1.18.18</version.lombok>
+    <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.source>11</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>

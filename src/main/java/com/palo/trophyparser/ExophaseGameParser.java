@@ -109,7 +109,11 @@ public class ExophaseGameParser {
             shortGameName + "_" + key + (App.SYSTEM_PS_FLAG == system ? "_trophy" : "_achievement")
                 + String.format("%02d", order) + extension;
         File targetFile = new File(shortGameName + File.separator + imageFileName);
-        FileUtils.copyURLToFile(new URL(imageUrl), targetFile);
+        try {
+          FileUtils.copyURLToFile(new URL(imageUrl), targetFile);
+        } catch (FileNotFoundException e) {
+          System.out.println(String.format("!! Brak obrazka na serwerze : " + imageUrl));
+        }
 
         // Get title
         String title = award.select("div.award-title > a").first().text();
