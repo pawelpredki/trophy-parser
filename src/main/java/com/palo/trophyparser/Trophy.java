@@ -1,5 +1,8 @@
 package com.palo.trophyparser;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -157,6 +160,25 @@ public class Trophy {
 		textBuilder.append(getDescription());
 		textBuilder.append(System.lineSeparator());
 		return textBuilder.toString();
+	}
+
+	public JsonObject printJson(){
+		JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
+
+		if(polishTitle != null){
+			jsonBuilder.add("polska_nazwa_osiagniecia", polishTitle);
+		}
+		jsonBuilder.add("angielska_nazwa_osiagniecia", title);
+		if(polishDescription != null){
+			jsonBuilder.add("polski_podpis_osiagniecia", polishDescription);
+		}
+		jsonBuilder.add("angielski_podpis_osiagniecia", description);
+		jsonBuilder.add("ikona_osiagniecia", getImageFileName());
+		if(color != null){
+			jsonBuilder.add("typ_achivmentu", color.getColorString());
+		}
+
+		return jsonBuilder.build();
 	}
 
 	@Override
