@@ -175,7 +175,7 @@ public class Trophy {
 		jsonBuilder.add("angielski_podpis_osiagniecia", description);
 		jsonBuilder.add("ikona_osiagniecia", getImageFileName());
 		if(color != null){
-			jsonBuilder.add("typ_achivmentu", color.getColorString());
+			jsonBuilder.add("typ_achivmentu", color.getColorTranslation(color.getColorString()));
 		}
 
 		return jsonBuilder.build();
