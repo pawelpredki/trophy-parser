@@ -1,7 +1,11 @@
 package com.palo.trophyparser;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonArrayBuilder;
+import java.util.List;
 
 public class Header {
 
@@ -57,13 +61,13 @@ public class Header {
 
     }
 
-    public static JsonObject getJson(TrophyCounter trophyCounter, Game game) {
+    public static JsonObject getJson(TrophyCounter trophyCounter, Game game, List<Trophy> trophyList) {
         int platinum = trophyCounter.getCount(TrophyColor.PLATINUM);
         int gold = trophyCounter.getCount(TrophyColor.GOLD);
         int silver = trophyCounter.getCount(TrophyColor.SILVER);
         int bronze = trophyCounter.getCount(TrophyColor.BRONZE);
 
-        JsonObject jsonObject = Json.createObjectBuilder()
+        JsonObjectBuilder jsonObject = Json.createObjectBuilder()
                 .add("game_title", game.getName())
                 .add("console", game.getConsole())
                 .add("game_url", game.getUrl())
@@ -78,9 +82,15 @@ public class Header {
                 .add("liczba_trofeow_online", "")
                 .add("minimalna_liczba_przejsc", "")
                 .add("trofea_mozliwe_do_przeoczenia", "")
-                .add("zglitchowane_trofea", "")
+                .add("zglitchowane_trofea", "");
+
+        JsonArray trophiesArray = trophyList.stream()
+                .map(Trophy::printJson)
+                .collect(Json::createArrayBuilder, JsonArrayBuilder::add, JsonArrayBuilder::add)
                 .build();
 
-        return jsonObject;
+        jsonObject.add("trofea", trophiesArray);
+
+        return jsonObject.build();
     }
 }

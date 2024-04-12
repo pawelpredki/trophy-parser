@@ -1,10 +1,6 @@
 package com.palo.trophyparser;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -12,11 +8,18 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonWriterFactory;
+import javax.json.stream.JsonGenerator;
+import javax.json.JsonWriter;
 
 public class ExophaseGameParser {
 
@@ -27,6 +30,7 @@ public class ExophaseGameParser {
   private HashMap<String, TrophyCounter> trophyCounts = new HashMap<String, TrophyCounter>();
   private HashMap<String, List<Trophy>> trophies = new HashMap<String, List<Trophy>>();
   private HashMap<String, Trophy> indexedTrophies = new HashMap<String, Trophy>();
+  private Game theGame;
 
   public ExophaseGameParser() {
   }
@@ -38,6 +42,8 @@ public class ExophaseGameParser {
     // Get game name from header
     String gameName = game.getName();// d.select("h3").first().text().split("â€º")[1];
     String shortGameName = game.getShortName();
+
+    theGame = game;
 
     if (null == gameDir) {
       System.out.println(gameName + "(" + shortGameName + ")");
@@ -199,7 +205,7 @@ public class ExophaseGameParser {
   }
 
   public void printTrophies(boolean providedByPublisher)
-      throws FileNotFoundException, UnsupportedEncodingException {
+          throws IOException {
     for (String s : trophies.keySet()) {
 
       PrintWriter writer = new PrintWriter(gameDir.getPath() + File.separator + s + "_html.txt",
@@ -207,7 +213,21 @@ public class ExophaseGameParser {
       PrintWriter writerGoogle = new PrintWriter(
           gameDir.getPath() + File.separator + s + "_gdocs.txt", "UTF-8");
 
+      FileWriter fileWriter = new FileWriter(gameDir.getPath() + File.separator + s + ".json");
+
       writer.write(Header.getHtml(trophyCounts.get(s)));
+
+      JsonObject jsonObject = Header.getJson(trophyCounts.get(s), theGame, trophies.get(s));
+
+      Map<String, Object> properties = new HashMap<>(1);
+      properties.put(JsonGenerator.PRETTY_PRINTING, true);
+
+      JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
+      JsonWriter jsonWriter = writerFactory.createWriter(fileWriter);
+      jsonWriter.writeObject(jsonObject);
+
+      fileWriter.close();
+      jsonWriter.close();
 
       for (Trophy t : trophies.get(s)) {
         writer.write(t.printHtml());
