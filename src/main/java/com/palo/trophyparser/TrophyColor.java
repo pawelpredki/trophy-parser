@@ -15,13 +15,13 @@ public enum TrophyColor {
 
 	public String getColorTranslation(String str){
 		if(str.equals("#ff6600")){
-			return "Brąz";
+			return "Brązowe";
 		}else if(str.equals("#808080")){
-			return "Srebro";
+			return "Srebrne";
 		}else if(str.equals("#f0c311")){
-			return "Złoty";
+			return "Złote";
 		}else if(str.equals("#00ccff")){
-			return "Platyna";
+			return "Platynowe";
 		}else{
 			return str;
 		}

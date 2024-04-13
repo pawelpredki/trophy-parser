@@ -213,7 +213,7 @@ public class ExophaseGameParser {
       PrintWriter writerGoogle = new PrintWriter(
           gameDir.getPath() + File.separator + s + "_gdocs.txt", "UTF-8");
 
-      FileWriter fileWriter = new FileWriter(gameDir.getPath() + File.separator + s + ".json");
+      FileWriter fileWriter = new FileWriter(gameDir.getPath() + File.separator + s + "_json.txt");
 
       writer.write(Header.getHtml(trophyCounts.get(s)));
 

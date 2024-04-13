@@ -68,7 +68,7 @@ public class Header {
         int bronze = trophyCounter.getCount(TrophyColor.BRONZE);
 
         JsonObjectBuilder jsonObject = Json.createObjectBuilder()
-                .add("game_title", game.getName())
+                .add("wp_review_heading", game.getName())
                 .add("liczba_trofeow", Json.createObjectBuilder()
                         .add("platyna", platinum)
                         .add("zloto", gold)
@@ -80,7 +80,7 @@ public class Header {
                 .collect(Json::createArrayBuilder, JsonArrayBuilder::add, JsonArrayBuilder::add)
                 .build();
 
-        jsonObject.add("trofea", trophiesArray);
+        jsonObject.add("elementy_poradnika", trophiesArray);
 
         return jsonObject.build();
     }
