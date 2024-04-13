@@ -69,20 +69,11 @@ public class Header {
 
         JsonObjectBuilder jsonObject = Json.createObjectBuilder()
                 .add("game_title", game.getName())
-                .add("console", game.getConsole())
-                .add("game_url", game.getUrl())
-                .add("stopien_trudnosci_wbicia_platyny", "")
-                .add("czas_do_zdobycia_platyny", "")
                 .add("liczba_trofeow", Json.createObjectBuilder()
                         .add("platyna", platinum)
                         .add("zloto", gold)
                         .add("srebro", silver)
-                        .add("braz", bronze))
-                .add("liczb_trofeow_offline", "")
-                .add("liczba_trofeow_online", "")
-                .add("minimalna_liczba_przejsc", "")
-                .add("trofea_mozliwe_do_przeoczenia", "")
-                .add("zglitchowane_trofea", "");
+                        .add("braz", bronze));
 
         JsonArray trophiesArray = trophyList.stream()
                 .map(Trophy::printJson)
