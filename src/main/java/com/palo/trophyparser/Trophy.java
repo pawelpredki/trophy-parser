@@ -177,6 +177,9 @@ public class Trophy {
 		if(color != null){
 			jsonBuilder.add("typ_achievementu", color.name().toLowerCase());
 		}
+		if(gamerscore != null && !gamerscore.isEmpty()){
+			jsonBuilder.add("gamerscore", gamerscore);
+		}
 
 		return jsonBuilder.build();
 	}
