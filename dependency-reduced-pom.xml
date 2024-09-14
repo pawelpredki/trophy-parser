@@ -4,7 +4,7 @@
   <groupId>com.palo</groupId>
   <artifactId>trophy-parser</artifactId>
   <name>trophy-parser</name>
-  <version>0.4.2</version>
+  <version>0.4.3</version>
   <url>http://maven.apache.org</url>
   <build>
     <plugins>
@@ -26,6 +26,13 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>9</source>
+          <target>9</target>
+        </configuration>
       </plugin>
     </plugins>
   </build>

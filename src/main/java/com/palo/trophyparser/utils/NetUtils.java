@@ -51,6 +51,7 @@ public class NetUtils {
                 .setConnectionRequestTimeout(timeoutSeconds * 1000)
                 .setConnectTimeout(timeoutSeconds * 1000).setSocketTimeout(timeoutSeconds * 1000)
                 .build()).build();
+        request.setHeader("User-Agent", "PostmanRuntime/7.41.2");
         response = client.execute(request);
         HttpEntity entity = response.getEntity();
         if (null == entity) {
