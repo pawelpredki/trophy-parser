@@ -9,7 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import lombok.extern.java.Log;
+
 import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,6 +23,8 @@ import javax.json.JsonObject;
 import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGenerator;
 import javax.json.JsonWriter;
+
+import org.apache.commons.codec.binary.StringUtils;
 
 @Log
 public class ExophaseGameParser {
@@ -40,8 +44,32 @@ public class ExophaseGameParser {
   }
 
   public void parseGame(Game game, int system) throws IOException {
-    String url = game.getUrl();// + "?lang=pl";
-    Document d = Jsoup.connect(url).headers(JSOUP_HEADERS).get();
+    String url = null;
+    String urlPl = null;
+    if (game.isLocal()) {
+      File gameDir = new File(game.getUrl());
+
+      // Get all files in the game directory
+      File[] files = gameDir.listFiles(File::isFile);
+      if (files == null || files.length == 0) {
+        System.out.println("No files found in: " + gameDir);
+        return;
+      }
+      for (File file : files) {
+        if (file.getName().contains(system == App.SYSTEM_PS_FLAG ? "Trophies - PS" : "- Xbox")) {
+          url = file.getAbsolutePath();
+        } else if (file.getName().contains("Trofea - PS")) {
+          urlPl = file.getAbsolutePath();
+        }
+      }
+    } else {
+      url = game.getUrl();
+    }
+    if (null == url) {
+      return;
+    }
+    Document d = game.isLocal() ? Jsoup.parse(new File(url), "UTF-8")
+        : Jsoup.connect(url).headers(JSOUP_HEADERS).get();
 
     // Get game name from header
     String gameName = game.getName();// d.select("h3").first().text().split("â€º")[1];
@@ -59,15 +87,18 @@ public class ExophaseGameParser {
     }
 
     // Figure out if Polish is available
-    boolean hasPolish = false;
-    Elements languageElement = d.select(".languages");
-    if (null != languageElement && !languageElement.isEmpty()) {
-      List<Element> languages = languageElement.first().nextElementSibling().select("a");
-      if (languages.size() > 0) {
-        for (Element language : languages) {
-          if (language.select("a").first().text().contains("Polish")) {
-            hasPolish = true;
-            break;
+    boolean hasPolish = false || (game.isLocal() && urlPl != null);
+    System.out.println(hasPolish + " | " + urlPl);
+    if (!game.isLocal()) {
+      Elements languageElement = d.select(".languages");
+      if (null != languageElement && !languageElement.isEmpty()) {
+        List<Element> languages = languageElement.first().nextElementSibling().select("a");
+        if (languages.size() > 0) {
+          for (Element language : languages) {
+            if (language.select("a").first().text().contains("Polish")) {
+              hasPolish = true;
+              break;
+            }
           }
         }
       }
@@ -76,7 +107,8 @@ public class ExophaseGameParser {
     parseTrophies(d, shortGameName, system, false);
 
     if (hasPolish && doPolish) {
-      d = Jsoup.connect(url + "pl").headers(JSOUP_HEADERS).get();
+      d = game.isLocal() ? Jsoup.parse(new File(urlPl), "UTF-8")
+          : Jsoup.connect(url + "pl").headers(JSOUP_HEADERS).get();
       parseTrophies(d, shortGameName, system, true);
       doPolish = false;
     }
@@ -115,7 +147,8 @@ public class ExophaseGameParser {
         if (extension.contains("?")) {
           extension = extension.substring(0, extension.indexOf('?'));
         }
-        String imageFileName =
+        String imageFileName
+            =
             shortGameName + "_" + key + (App.SYSTEM_PS_FLAG == system ? "_trophy" : "_achievement")
                 + String.format("%02d", order) + extension;
         File targetFile = new File(shortGameName + File.separator + imageFileName);
