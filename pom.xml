@@ -5,7 +5,7 @@
 
     <groupId>com.palo</groupId>
     <artifactId>trophy-parser</artifactId>
-    <version>0.5.0</version>
+    <version>0.5.1</version>
     <packaging>jar</packaging>
 
     <name>trophy-parser</name>
